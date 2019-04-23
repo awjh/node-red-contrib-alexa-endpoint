@@ -1,0 +1,90 @@
+
+<script type="text/javascript">
+    RED.nodes.registerType('alexa-listener',{
+        category: 'input',
+        color: '#2DC6F2',
+        defaults: {
+            name: {value:""},
+            url: {value: ""},
+            intents: {value: ['INTENT 1', 'INTENT 2']}
+        },
+        icon: "arrow-in.png",
+        inputs:0,
+        outputs:1,
+        label: function() {
+            return this.name || "alexa-listener";
+        },
+        oneditprepare: function() {
+            const intents = this.intents || [];
+            const intentsContainer = document.getElementById('node-input-intents-container');
+            intentsContainer.editableList = {
+                addItem: (intent, idx) => {
+                    const li = document.createElement('li');
+                    li.id = 'INTENT-' + idx;
+                    li.style.display = 'flex';
+                    li.style.alignItems = 'center';
+                    li.style.marginBottom = '12px';
+                    const liTxtBox = document.createElement('input');
+                    liTxtBox.type = "text";
+                    liTxtBox.value = intent;
+                    liTxtBox.style.width = '100%';
+                    liTxtBox.style.flex = '1';
+                    liTxtBox.style.marginRight = '12px';
+                    const liArr = document.createElement('span');
+                    liArr.innerHTML = '&rarr; ' + (idx + 1);
+                    liArr.style.marginRight = '12px';
+                    const liRm = document.createElement('a');
+                    liRm.classList = 'red-ui-editableList-item-remove editor-button editor-button-small'
+                    const liRmCross = document.createElement('li');
+                    liRmCross.classList = 'fa fa-remove';
+                    liRmCross.addEventListener('click', () => {
+                        intentsContainer.editableList.removeItem(idx);
+                    });
+                    liRm.appendChild(liRmCross);
+                    li.appendChild(liTxtBox);
+                    li.appendChild(liArr);
+                    li.appendChild(liRm);
+                    intentsContainer.insertBefore(li, document.getElementById('addIntent'));
+                },
+                removeItem: (idx) => {
+                    document.getElementById('INTENT-' + idx).remove();
+
+                    for (let i = idx + 1; i < intents.length; i++) {
+                        document.getElementById('INTENT-' + i).getElementsByTagName('span')[0].innerHTML = '&rarr; ' + i;
+                    }
+
+                    intents.splice(idx, 1);
+                }
+            }
+
+            intents.forEach((intent, idx) => {
+                intentsContainer.editableList.addItem(intent, idx);
+            });
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="alexa-listener">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> URL</label>
+        <input type="text" id="node-input-url" placeholder="/">
+    </div>
+    <div class="form-row node-input-intents-container-row" style="display: flex">
+        <label for="node-input-intents" style="padding-top: 6px"><i class="fa fa-list"></i> Intents</label>
+        <ul style="display:inline-block; width: 70%; list-style-type: none; margin: 0" id="node-input-intents-container">
+            <li id="addIntent">
+                <a href="#" class="editor-button editor-button-small red-ui-editableList-addButton" style="margin-top: 4px;">
+                    <i class="fa fa-plus"></i> add
+                </a>
+            </li>
+        </ul>
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="alexa-listener">
+    <p>Listens to requests from Alexa and parses them</p>
+</script>
