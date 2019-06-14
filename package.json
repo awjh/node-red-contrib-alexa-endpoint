@@ -11,7 +11,8 @@
   "node-red": {
     "nodes": {
       "alexa-listener": "dist/alexa-listener.js",
-      "intent": "dist/intent.js"
+      "alexa-speaker": "dist/alexa-speaker.js",
+      "alexa-speak-listen": "dist/alexa-speak-listen.js"
     }
   },
   "repository": {
@@ -27,13 +28,15 @@
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.4",
     "lodash": "^4.17.11",
-    "node-red": "^0.20.5"
+    "node-red": "^0.20.5",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
     "@types/cookie-parser": "^1.4.1",
     "@types/lodash": "^4.14.123",
     "@types/node-red": "^0.20.0",
+    "@types/uuid": "^3.4.4",
     "nodemon": "^1.18.11",
     "typescript": "^3.4.4"
   }

@@ -1,0 +1,31 @@
+<script type="text/javascript">
+    RED.nodes.registerType('alexa-speaker',{
+        category: 'output',
+        color: '#31C4F3',
+        defaults: {
+            name: { value: '' },
+            message: { value: '' }
+        },
+        inputs: 1,
+        outputs: 0,
+        icon: "bridge.png",
+        label: function() {
+            return this.name || "alexa-speaker";
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="alexa-speaker">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-message"><i class="fa fa-envelope-o"></i> Message</label>
+        <input type="text" id="node-input-message" placeholder="Message">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="alexa-speaker">
+    <p>Takes a message and returns to alexa</p>
+</script>

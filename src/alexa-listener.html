@@ -1,90 +1,79 @@
-
 <script type="text/javascript">
-    RED.nodes.registerType('alexa-listener',{
+    RED.nodes.registerType('alexa-listener', {
         category: 'input',
-        color: '#2DC6F2',
+        color: '#31C4F3',
         defaults: {
-            name: {value:""},
-            url: {value: ""},
-            intents: {value: ['INTENT 1', 'INTENT 2']}
+            name: { value: '' },
+            url: { value: ''},
+            intents: { value: [] },
+            outputs: { value: 1 },
         },
-        icon: "arrow-in.png",
-        inputs:0,
-        outputs:1,
-        label: function() {
+        inputs: 0,
+        outputs: 1,
+        icon: "bridge.png",
+        label: function () {
             return this.name || "alexa-listener";
         },
-        oneditprepare: function() {
+        oneditprepare: function () {
             const intents = this.intents || [];
-            const intentsContainer = document.getElementById('node-input-intents-container');
-            intentsContainer.editableList = {
-                addItem: (intent, idx) => {
-                    const li = document.createElement('li');
-                    li.id = 'INTENT-' + idx;
-                    li.style.display = 'flex';
-                    li.style.alignItems = 'center';
-                    li.style.marginBottom = '12px';
-                    const liTxtBox = document.createElement('input');
-                    liTxtBox.type = "text";
-                    liTxtBox.value = intent;
-                    liTxtBox.style.width = '100%';
-                    liTxtBox.style.flex = '1';
-                    liTxtBox.style.marginRight = '12px';
-                    const liArr = document.createElement('span');
-                    liArr.innerHTML = '&rarr; ' + (idx + 1);
-                    liArr.style.marginRight = '12px';
-                    const liRm = document.createElement('a');
-                    liRm.classList = 'red-ui-editableList-item-remove editor-button editor-button-small'
-                    const liRmCross = document.createElement('li');
-                    liRmCross.classList = 'fa fa-remove';
-                    liRmCross.addEventListener('click', () => {
-                        intentsContainer.editableList.removeItem(idx);
-                    });
-                    liRm.appendChild(liRmCross);
-                    li.appendChild(liTxtBox);
-                    li.appendChild(liArr);
-                    li.appendChild(liRm);
-                    intentsContainer.insertBefore(li, document.getElementById('addIntent'));
-                },
-                removeItem: (idx) => {
-                    document.getElementById('INTENT-' + idx).remove();
+            const intentsContainer = $('#node-input-intent-container');
 
-                    for (let i = idx + 1; i < intents.length; i++) {
-                        document.getElementById('INTENT-' + i).getElementsByTagName('span')[0].innerHTML = '&rarr; ' + i;
+            intentsContainer.css({ 'min-height': '250px' });
+
+            intentsContainer.editableList({
+                removable: true,
+                addItem: function (container, index, data) {
+                    $(container).css('display', 'flex');
+                    const input = $('<input />', { class: "node-input-intent-value", type: "text", style: "margin-right: 5px; flex: 1" }).appendTo(container);
+
+                    const finalspan = $('<span/>', { style: "float: right;margin-top: 6px;" }).appendTo(container);
+                    finalspan.append(' &#8594; <span class="node-input-intent-index">' + (index + 1) + '</span> ');
+
+                    if (data.hasOwnProperty('value')) {
+                        input.val(data.value);
                     }
-
-                    intents.splice(idx, 1);
+                },
+                removeItem: function (data) {
+                    console.log('ITEM REMOVED');
                 }
-            }
-
-            intents.forEach((intent, idx) => {
-                intentsContainer.editableList.addItem(intent, idx);
             });
+
+            function addAllintents() {
+                intents.forEach((intent, idx) => {
+                    intentsContainer.editableList('addItem', { value: intent });
+                });
+            }
+            addAllintents();
+        },
+        oneditsave: function () {
+
+            const node = this;
+            node.intents = [];
+
+            $("#node-input-intent-container").editableList('items').each(function (i) {
+                node.intents.push($(this).find('.node-input-intent-value').val());
+            });
+
+            node.outputs = node.intents.length;
         }
     });
 </script>
 
 <script type="text/x-red" data-template-name="alexa-listener">
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
+    <div class="form-row" >
+        <label for="node-input-name" ><i class="icon-tag" ></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name" />
     </div>
-    <div class="form-row">
+    <div class="form-row" >
         <label for="node-input-url"><i class="fa fa-globe"></i> URL</label>
-        <input type="text" id="node-input-url" placeholder="/">
+        <input id="node-input-url" type="text" placeholder="/url">
     </div>
-    <div class="form-row node-input-intents-container-row" style="display: flex">
-        <label for="node-input-intents" style="padding-top: 6px"><i class="fa fa-list"></i> Intents</label>
-        <ul style="display:inline-block; width: 70%; list-style-type: none; margin: 0" id="node-input-intents-container">
-            <li id="addIntent">
-                <a href="#" class="editor-button editor-button-small red-ui-editableList-addButton" style="margin-top: 4px;">
-                    <i class="fa fa-plus"></i> add
-                </a>
-            </li>
-        </ul>
+    <div class="form-row" >
+        <label for="node-intent" ><i class="fa fa-list" ></i> Intents</label>
+        <ul id="node-input-intent-container" ></ul>
     </div>
 </script>
 
 <script type="text/x-red" data-help-name="alexa-listener">
-    <p>Listens to requests from Alexa and parses them</p>
+    <p>A node to listen for alexa requests and outputs them based on intent</p>
 </script>
