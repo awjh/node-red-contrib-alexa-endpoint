@@ -1,4 +1,4 @@
-import { speak } from "./utils/speaker";
+import { AlexaHandler } from "./utils/alexa-handler";
 
 module.exports = function (RED) {
     function AlexaSpeakerNode(config) {
@@ -8,7 +8,7 @@ module.exports = function (RED) {
         node.message = config.message;
 
         node.on('input', (msg) => {
-            speak(node.message, msg);
+            AlexaHandler.speak(node.message, msg);
         });
     }
     RED.nodes.registerType("alexa-speaker", AlexaSpeakerNode);

@@ -5,13 +5,57 @@
         defaults: {
             name: { value: '' },
             message: { value: '' },
-            url: { value: '' }
+            url: { value: '' },
+            intents: { value: [] },
+            outputs: { value: 1 },
         },
         inputs: 1,
         outputs: 1,
         icon: "bridge.png",
         label: function() {
             return this.name || "alexa-speak-listen";
+        },
+        oneditprepare: function () {
+            const intents = this.intents || [];
+            const intentsContainer = $('#node-input-intent-container');
+
+            intentsContainer.css({ 'min-height': '250px' });
+
+            intentsContainer.editableList({
+                removable: true,
+                addItem: function (container, index, data) {
+                    $(container).css('display', 'flex');
+                    const input = $('<input />', { class: "node-input-intent-value", type: "text", style: "margin-right: 5px; flex: 1" }).appendTo(container);
+
+                    const finalspan = $('<span/>', { style: "float: right;margin-top: 6px;" }).appendTo(container);
+                    finalspan.append(' &#8594; <span class="node-input-intent-index">' + (index + 1) + '</span> ');
+
+                    if (data.hasOwnProperty('value')) {
+                        input.val(data.value);
+                    }
+                },
+                removeItem: function (data) {
+                    console.log('ITEM REMOVED');
+                }
+            });
+
+            function addAllintents() {
+                intents.forEach((intent, idx) => {
+                    intentsContainer.editableList('addItem', { value: intent });
+                });
+            }
+            addAllintents();
+        },
+        oneditsave: function () {
+
+            const node = this;
+            node.intents = [];
+
+            $("#node-input-intent-container").editableList('items').each(function (i) {
+                node.intents.push($(this).find('.node-input-intent-value').val());
+            });
+
+            node.outputs = node.intents.length;
         }
     });
 </script>
@@ -28,6 +72,10 @@
     <div class="form-row">
         <label for="node-input-message"><i class="fa fa-envelope-o"></i> Message</label>
         <input type="text" id="node-input-message" placeholder="Message">
+    </div>
+    <div class="form-row" >
+        <label for="node-intent" ><i class="fa fa-list" ></i> Intents</label>
+        <ul id="node-input-intent-container" ></ul>
     </div>
 </script>
 

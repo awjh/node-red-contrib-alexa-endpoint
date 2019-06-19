@@ -1,6 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
-import { EventEmitter } from './eventEmitter';
+import { EventEmitter } from './event-emitter';
 
 const reqResNext = (req, res, next) => { next(); };
         
@@ -85,7 +85,7 @@ export class AlexaHandler {
         const selectedEventEmitters = this.eventEmitters[url];
 
         if (Array.isArray(selectedEventEmitters)) {
-            for (let i = selectedEventEmitters.length; i >= 0; i--) {
+            for (let i = selectedEventEmitters.length - 1; i >= 0; i--) {
                 if (selectedEventEmitters[i].id === eventEmitter.id) {
                     selectedEventEmitters.splice(i, 1);
                 }
@@ -99,5 +99,29 @@ export class AlexaHandler {
                 });
             }
         }
+    }
+
+    public static speak(nodeMessage: string, msg: {[s: string]: any, message: string | boolean | number}, endSession = true) {
+        let message: string | boolean | number = nodeMessage;
+
+        const allowedTypes = ['string', 'number', 'boolean'];
+
+        if (msg.hasOwnProperty('message') && allowedTypes.includes(typeof msg.message)) {
+            message = msg.message;
+        }
+
+        msg.res.send({
+            "version": "1.0",
+            "response": {
+                'outputSpeech': {
+                    'type': 'PlainText',
+                    'text': message
+                },
+                "directives": [],
+                "shouldEndSession": endSession,
+                "type": "_DEFAULT_RESPONSE"
+            },
+            "sessionAttributes": {}
+        });
     }
 }

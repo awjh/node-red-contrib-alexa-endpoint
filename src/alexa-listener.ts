@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { AlexaHandler } from './utils/alexa-handler';
+import { OutputHandler } from './utils/output-handler';
 
 module.exports = function(RED) {
 
@@ -14,18 +15,7 @@ module.exports = function(RED) {
         const eventEmitter = AlexaHandler.listen(RED, node.url);
         eventEmitter.on('INTENT_REQUEST', (msg) => {
             if (msg.payload.session.new) {
-                const intents = this.intents as string[];
-                const outputs = [];
-        
-                node.intents.forEach(() => {
-                    outputs.push(null);
-                });
-        
-                if (intents.includes(msg.payload.intent)) {            
-                    outputs[intents.indexOf(msg.payload.intent)] = msg;
-        
-                    node.send(outputs);
-                }
+                node.send(OutputHandler.selectOutputFromArray(node.intents, msg.payload.intent, msg));
             }
         });
 
