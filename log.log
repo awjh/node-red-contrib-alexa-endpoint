@@ -1,0 +1,20 @@
+
+> node-red-contrib-alexa-app-server@0.0.1 test /home/andy/Documents/Node Red/node-red-contrib-alexa-endpoint
+> nyc mocha -r ts-node/register src/*.spec.ts
+
+
+
+  #alexa-listener
+[Function]
+    ✓ should get loaded
+
+
+  1 passing (6ms)
+
+
+=============================== Coverage summary ===============================
+Statements   : 25% ( 31/124 )
+Branches     : 0% ( 0/43 )
+Functions    : 11.11% ( 3/27 )
+Lines        : 23.48% ( 27/115 )
+================================================================================

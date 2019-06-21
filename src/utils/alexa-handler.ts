@@ -20,13 +20,9 @@ export class AlexaHandler {
     private static eventEmitters: IEventListeners = {};
 
     public static listen(RED: any, url: string): EventEmitter {
-        console.log('LISTEN REQUEST');
-
         const HTTPExists = RED.httpNode._router && RED.httpNode._router.stack && RED.httpNode._router.stack.some(function(route,i,routes) {
             return route.route && route.route.path === url && route.route.methods['post'];
         });
-
-        console.log('HTTP ALREADY EXISTS', HTTPExists);
 
         const eventEmitter = new EventEmitter();
 
