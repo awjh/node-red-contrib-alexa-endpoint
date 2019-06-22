@@ -1,5 +1,5 @@
-import { Red, Node, NodeProperties } from 'node-red';
-import { AlexaHandler } from "./utils/alexa-handler";
+import { Node, NodeProperties, Red } from 'node-red';
+import { AlexaHandler } from './utils/alexa-handler';
 
 export interface IAlexaSpeakerConfig extends NodeProperties {
     message: string;
@@ -14,7 +14,7 @@ function AlexaSpeaker (RED: Red) {
 
         constructor (config: IAlexaSpeakerConfig) {
             const node = this as any as IAlexaSpeaker;
-            
+
             RED.nodes.createNode(node, config);
 
             node.message = config.message;
@@ -25,7 +25,7 @@ function AlexaSpeaker (RED: Red) {
         }
     }
 
-    RED.nodes.registerType("alexa-speaker", AlexaSpeakerNode as any);
+    RED.nodes.registerType('alexa-speaker', AlexaSpeakerNode as any);
 }
 
 module.exports = AlexaSpeaker;
