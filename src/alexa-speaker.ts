@@ -17,6 +17,7 @@ function AlexaSpeaker (RED: Red) {
 
             RED.nodes.createNode(node, config);
 
+            node.name = config.name;
             node.message = config.message;
 
             node.on('input', (msg) => {
