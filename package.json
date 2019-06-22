@@ -12,7 +12,7 @@
     "nodes": {
       "alexa-listener": "dist/alexa-listener.js",
       "alexa-speaker": "dist/alexa-speaker.js",
-      "alexa-speak-listen": "dist/alexa-speak-listen.js"
+      "alexa-speaker-listener": "dist/alexa-speaker-listener.js"
     }
   },
   "repository": {
@@ -45,6 +45,7 @@
   "author": "awjh",
   "license": "Apache-2.0",
   "dependencies": {
+    "@types/chai": "^4.1.7",
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.4",
     "lodash": "^4.17.11",

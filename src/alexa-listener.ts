@@ -1,24 +1,29 @@
-import { EventEmitter } from 'events';
-import { Red, Node } from 'node-red';
+import { Red, Node, NodeProperties } from 'node-red';
 import { AlexaHandler } from './utils/alexa-handler';
 import { OutputHandler } from './utils/output-handler';
 
-export function AlexaListener (RED: Red) {
+export interface IAlexaListenerConfig extends NodeProperties {
+    url: string;
+    name: string;
+    intents: string[];
+}
 
+export interface IAlexaListener extends IAlexaListenerConfig, Node {}
+
+function AlexaListener (RED: Red) {
     class AlexaListenerNode {
-        private url;
-        private name;
-        private intents;
+        private url: string;
+        private name: string;
+        private intents: string[];
 
-        constructor (config) {
-            // TODO TEST THAT CAN MAKE THIS CONSTRUCTOR STYLE AND NODE CAN WORK AS TYPE IDEALLY CLASS WOULD EXTEND THE NODE-RED NODE CLASS
-            RED.nodes.createNode(this as any, config);
+        constructor (config: IAlexaListenerConfig) {
+            const node = this as any as IAlexaListener;
 
-            this.name = config.name;        
-            this.url = config.url;        
-            this.intents = config.intents || [];
+            RED.nodes.createNode(node, config);
 
-            const node = this as any as Node;
+            node.name = config.name;        
+            node.url = config.url;        
+            node.intents = config.intents || [];
     
             const eventEmitter = AlexaHandler.listen(RED, node.url);
             eventEmitter.on('INTENT_REQUEST', (msg) => {
@@ -33,8 +38,8 @@ export function AlexaListener (RED: Red) {
             });
         }
     }
-    
-    RED.nodes.registerType("alexa-listener", AlexaListenerNode);
+
+    RED.nodes.registerType('alexa-listener', AlexaListenerNode as any);
 }
 
 module.exports = AlexaListener;

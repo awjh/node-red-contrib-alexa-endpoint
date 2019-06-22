@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('alexa-speak-listen',{
+    RED.nodes.registerType('alexa-speaker-listener',{
         category: 'function',
         color: '#31C4F3',
         defaults: {
@@ -13,7 +13,7 @@
         outputs: 1,
         icon: "bridge.png",
         label: function() {
-            return this.name || "alexa-speak-listen";
+            return this.name || "alexa-speaker-listener";
         },
         oneditprepare: function () {
             const intents = this.intents || [];
@@ -60,7 +60,7 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="alexa-speak-listen">
+<script type="text/x-red" data-template-name="alexa-speaker-listener">
     <div class="form-row" >
         <label for="node-input-name" ><i class="icon-tag" ></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name" />
@@ -79,6 +79,6 @@
     </div>
 </script>
 
-<script type="text/x-red" data-help-name="alexa-speak-listen">
+<script type="text/x-red" data-help-name="alexa-speaker-listener">
     <p>Takes a message and returns to alexa and waits for a response</p>
 </script>
