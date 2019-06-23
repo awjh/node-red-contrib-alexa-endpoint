@@ -10,7 +10,7 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 // tslint:disable: no-unused-expression
-describe ('#alexa-listener', () => {
+describe ('#AlexaListener', () => {
 
     let sandbox: sinon.SinonSandbox;
 

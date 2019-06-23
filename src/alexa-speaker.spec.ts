@@ -1,25 +1,32 @@
 import * as chai from 'chai';
+import * as mockery from 'mockery';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import * as AlexaSpeaker from './alexa-speaker';
-import { EventEmitter } from './utils/event-emitter';
+import { IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
 
 const expect = chai.expect;
 chai.use(sinonChai);
 
-describe ('#alexa-speaker', () => {
-
-    let sandbox: sinon.SinonSandbox;
+describe ('#AlexaSpeaker', () => {
+    let AlexaSpeaker;
 
     let mockRED: {
         nodes: {
-            createNode: sinon.SinonStub;
-            registerType: sinon.SinonStub;
+            createNode: sinon.SinonStub,
+            registerType: sinon.SinonStub,
         },
     };
 
+    before(() => {
+        mockery.enable({
+            warnOnReplace: false,
+            warnOnUnregistered: false,
+        });
+    });
+
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
+        AlexaSpeaker = noCacheRequire('./alexa-speaker');
+
         mockRED = {
             nodes: {
                 createNode: sinon.stub(),
@@ -29,7 +36,11 @@ describe ('#alexa-speaker', () => {
     });
 
     afterEach(() => {
-        sandbox.restore();
+        mockery.deregisterAll();
+    });
+
+    after(() => {
+        mockery.disable();
     });
 
     it ('should register the type', async () => {
@@ -38,40 +49,33 @@ describe ('#alexa-speaker', () => {
         expect(mockRED.nodes.registerType).to.have.been.calledOnceWithExactly('alexa-speaker', sinon.match.func);
     });
 
-    describe ('AlexaListenerNode', () => {
-        let AlexaSpeakerNode;
-
-        let mockConfig: AlexaSpeaker.IAlexaSpeakerConfig;
-
-        let mockEventEmitter: sinon.SinonStubbedInstance<EventEmitter>;
-
-        beforeEach(() => {
-            (AlexaSpeaker as any)(mockRED);
-
-            AlexaSpeakerNode = mockRED.nodes.registerType.getCall(0).args[1];
-
-            mockEventEmitter = sandbox.createStubInstance(EventEmitter);
-
-            mockConfig = {
-                id: 'some type',
+    describe ('node factory', () => {
+        it ('should create a new AlexaSpeakerNode', () => {
+            const mockConfig: IAlexaSpeakerConfig = {
+                id: 'some id',
                 message: 'some message',
                 name: 'some name',
                 type: 'some type',
             };
-        });
 
-        it ('should assign values when constructed, create node and listen', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
+            const MockNodeAlexaSpeaker = {
+                AlexaSpeakerNode: sinon.stub(),
+            };
 
-            const alexaListenerNode = new AlexaSpeakerNode(mockConfig);
+            mockery.registerMock('./utils/nodes/alexa-speaker', MockNodeAlexaSpeaker);
+            AlexaSpeaker = noCacheRequire('./alexa-speaker');
 
-            expect(alexaListenerNode.name).to.deep.equal('some name');
-            expect(alexaListenerNode.message).to.deep.equal('some message');
+            (AlexaSpeaker as any)(mockRED);
 
-            expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
-            expect(alexaListenerNode.on).to.have.been.calledOnceWithExactly('input', sinon.match.func);
+            const nodeFactory = mockRED.nodes.registerType.getCall(0).args[1];
+
+            nodeFactory(mockConfig);
+            expect(MockNodeAlexaSpeaker.AlexaSpeakerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
         });
     });
 });
+
+function noCacheRequire (path: string) {
+    delete require.cache[require.resolve(path)];
+    return require(path);
+}

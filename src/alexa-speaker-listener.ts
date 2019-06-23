@@ -1,7 +1,7 @@
 import { Red } from 'node-red';
 import { IAlexaListener, IAlexaListenerConfig } from './alexa-listener';
-import { IAlexaSpeaker, IAlexaSpeakerConfig } from './alexa-speaker';
 import { AlexaHandler } from './utils/alexa-handler';
+import { IAlexaSpeaker, IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
 import { OutputHandler } from './utils/output-handler';
 
 interface IAlexaSpeakerListenerConfig extends IAlexaListenerConfig, IAlexaSpeakerConfig {}
