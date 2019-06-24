@@ -16,8 +16,8 @@ export class AlexaSpeakerNode {
 
         RED.nodes.createNode(node, config);
 
-        node.name = config.name;
-        node.message = config.message;
+        this.name = config.name;
+        this.message = config.message;
 
         node.on('input', this.inputHandler);
     }

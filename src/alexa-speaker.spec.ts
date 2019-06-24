@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import * as mockery from 'mockery';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
+import { noCacheRequire } from './test-helpers/test-helpers';
 import { IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
 
 const expect = chai.expect;
@@ -74,8 +75,3 @@ describe ('#AlexaSpeaker', () => {
         });
     });
 });
-
-function noCacheRequire (path: string) {
-    delete require.cache[require.resolve(path)];
-    return require(path);
-}
