@@ -27,13 +27,20 @@ export class AlexaListenerNode extends BaseNode {
     public setupNode () {
         super.setupNode();
 
-        (this as any as Node).on('close', this.closeHandler);
+        const node = this;
 
-        this.eventEmitter.on('INTENT_REQUEST', this.intentHandler);
+        node.on('close', () => {
+            node.closeHandler();
+        });
+
+        this.eventEmitter.on('INTENT_REQUEST', (msg) => {
+            node.intentHandler(msg);
+        });
     }
 
     private intentHandler (msg) {
         if (msg.payload.session.new) {
+            msg.actioned = true;
             this.send(OutputHandler.selectOutputFromArray(this.intents, msg.payload.intent, msg));
         }
     }

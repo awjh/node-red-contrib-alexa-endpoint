@@ -48,9 +48,12 @@ export class AlexaHandler {
                     msg.payload.slots = slots;
                     msg.res = res;
                     msg.req = req;
+                    msg.actioned = false;
 
-                    this.eventEmitters[url].forEach((existingEventEmitter) => {
+                    this.eventEmitters[url].some((existingEventEmitter) => {
                         existingEventEmitter.emit('INTENT_REQUEST', msg);
+
+                        return msg.actioned; // send to each listener until one has actioned it
                     });
                 }
             };

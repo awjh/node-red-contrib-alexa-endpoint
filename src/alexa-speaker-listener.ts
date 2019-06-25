@@ -1,53 +1,16 @@
 import { Red } from 'node-red';
-import { IAlexaListener, IAlexaListenerConfig } from './alexa-listener';
-import { AlexaHandler } from './utils/alexa-handler';
-import { IAlexaSpeaker, IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
-import { OutputHandler } from './utils/output-handler';
+import { AlexaSpeakerListenerNode, IAlexaSpeakerListenerConfig } from './utils/nodes/alexa-speaker-listener';
 
 function AlexaSpeakerListener (RED: Red) {
 
-    class AlexaSpeakerListenerNode {
+    class Node extends AlexaSpeakerListenerNode {
         constructor (config: IAlexaSpeakerListenerConfig) {
-            const node = this as any as IAlexaSpeakerListener;
+            super(RED, config);
 
-            RED.nodes.createNode(node, config);
-
-            node.message = config.message;
-            node.url = config.url;
-            node.intents = config.intents || [];
-
-            node.on('input', (inputMsg) => {
-                AlexaHandler.speak(node.message, inputMsg, false);
-
-                const sessionId = inputMsg.payload.session.sessionId;
-
-                try {
-                    const eventEmitter = AlexaHandler.listen(RED, node.url);
-                    eventEmitter.on('INTENT_REQUEST', (msg) => {
-                        if (msg.payload.session.sessionId === sessionId) {
-                            const outputs = OutputHandler.selectOutputFromArray(node.intents, msg.payload.intent, msg);
-
-                            if (outputs.every((output) => output === null)) {
-                                AlexaHandler.speak(
-                                    'Sorry I don\'t understsand your response in this context. ' + node.message,
-                                    msg,
-                                    false,
-                                );
-                            } else {
-                                AlexaHandler.unlisten(RED, node.url, eventEmitter);
-                                eventEmitter.removeAllListeners();
-                                node.send(outputs);
-                            }
-                        }
-                    });
-                } catch (err) {
-                    console.log(err);
-                }
-            });
+            this.setupNode();
         }
     }
 
-    RED.nodes.registerType('alexa-speaker-listener', AlexaSpeakerListenerNode as any);
+    RED.nodes.registerType('alexa-speaker-listener', Node as any);
 }
-
 module.exports = AlexaSpeakerListener;

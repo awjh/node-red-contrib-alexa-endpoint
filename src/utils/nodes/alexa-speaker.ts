@@ -22,7 +22,11 @@ export class AlexaSpeakerNode extends BaseNode {
     public setupNode () {
         super.setupNode();
 
-        (this as any as Node).on('input', this.inputHandler);
+        const node = this;
+
+        node.on('input', (msg) => {
+            node.inputHandler(msg);
+        });
     }
 
     private inputHandler (msg) {

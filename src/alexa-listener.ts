@@ -2,10 +2,15 @@ import { Red } from 'node-red';
 import { AlexaListenerNode, IAlexaListenerConfig } from './utils/nodes/alexa-listener';
 
 function AlexaListener (RED: Red) {
-    RED.nodes.registerType('alexa-listener', (config: IAlexaListenerConfig) => {
-        const alexaListenerNode = new AlexaListenerNode(RED, config);
-        alexaListenerNode.setupNode();
-    });
+    class Node extends AlexaListenerNode {
+        constructor (config: IAlexaListenerConfig) {
+            super(RED, config);
+
+            this.setupNode();
+        }
+    }
+
+    RED.nodes.registerType('alexa-listener', Node as any);
 }
 
 module.exports = AlexaListener;

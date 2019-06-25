@@ -1,40 +1,54 @@
 import { Red } from 'node-red';
+import { AlexaHandler } from '../alexa-handler';
 import { EventEmitter } from '../event-emitter';
+import { OutputHandler } from '../output-handler';
 import { AlexaListenerNode, IAlexaListener, IAlexaListenerConfig } from './alexa-listener';
 import { AlexaSpeakerNode, IAlexaSpeaker, IAlexaSpeakerConfig } from './alexa-speaker';
 import { BaseNode } from './base';
-import { OutputHandler } from '../output-handler';
-import { AlexaHandler } from '../alexa-handler';
 
 export interface IAlexaSpeakerListenerConfig extends IAlexaListenerConfig, IAlexaSpeakerConfig {}
 export interface IAlexaSpeakerListener extends IAlexaListener, IAlexaSpeaker {}
 
-export class AlexaSpeakerListenerNode extends BaseNode implements AlexaListenerNode, AlexaSpeakerNode {
-    public readonly url: string;
-    public readonly intents: string[];
-    public readonly eventEmitter: EventEmitter;
-
-    public readonly message: string;
-
+export class AlexaSpeakerListenerNode extends BaseNode {
     public readonly currentSessions: string[];
+
+    private alexaListener: AlexaListenerNode;
+    private alexaSpeaker: AlexaSpeakerNode;
+
+    private setupListenerNode: () => void;
+    private setupSpeakerNode: () => void;
 
     constructor (RED: Red, config: IAlexaSpeakerListenerConfig) {
         super(RED, config);
 
-        const intentHandler = this.intentHandler;
+        this.alexaListener = new AlexaListenerNode(RED, config);
+        this.alexaSpeaker = new AlexaSpeakerNode(RED, config);
 
-        Object.assign(this, new AlexaListenerNode(RED, config));
-        Object.assign(this, new AlexaListenerNode(RED, config));
+        const node = this;
 
-        this.intentHandler = intentHandler;
+        Object.keys(this.alexaListener).forEach((key) => {
+            node[key] = node.alexaListener[key];
+        });
+
+        Object.keys(this.alexaSpeaker).forEach((key) => {
+            node[key] = node.alexaSpeaker[key];
+        });
+
+        this.setupListenerNode = this.alexaListener.setupNode;
+        this.setupSpeakerNode = this.alexaSpeaker.setupNode;
+
+        this.currentSessions = [];
     }
 
-    private setupNode () {
-        // needs to call setupNode of AlexaListenerNode and AlexaSpeakerNode
+    public setupNode () {
+        this.setupListenerNode();
+        this.setupSpeakerNode();
     }
 
-    private intentHandler (msg) {
+    protected intentHandler (msg) {
         if (this.currentSessions.includes(msg.payload.session.sessionId)) {
+            msg.actioned = true;
+
             const outputs = OutputHandler.selectOutputFromArray(this.intents, msg.payload.intent, msg);
 
             if (outputs.every((output) => output === null)) {
@@ -46,14 +60,18 @@ export class AlexaSpeakerListenerNode extends BaseNode implements AlexaListenerN
             } else {
                 const sessionIndex = this.currentSessions.indexOf(msg.payload.session.sessionId);
                 this.currentSessions.splice(sessionIndex, 1);
+                console.log(this.currentSessions);
                 this.send(outputs);
             }
         }
     }
 
-    private inputHandler (inputMsg: {[s: string]: any, message: string | boolean | number}) {
+    protected inputHandler (inputMsg: {[s: string]: any, message: string | boolean | number}) {
         AlexaHandler.speak(this.message, inputMsg, false);
 
         this.currentSessions.push(inputMsg.payload.session.sessionId);
     }
+
+    // tslint:disable-next-line:no-empty
+    protected closeHandler () {} // gets overwritten
 }
