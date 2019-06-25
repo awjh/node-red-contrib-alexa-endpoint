@@ -59,8 +59,12 @@ describe ('#AlexaSpeaker', () => {
                 type: 'some type',
             };
 
+            const mockNode = {
+                setupNode: sinon.stub(),
+            };
+
             const MockNodeAlexaSpeaker = {
-                AlexaSpeakerNode: sinon.stub(),
+                AlexaSpeakerNode: sinon.stub().returns(mockNode),
             };
 
             mockery.registerMock('./utils/nodes/alexa-speaker', MockNodeAlexaSpeaker);
@@ -72,6 +76,7 @@ describe ('#AlexaSpeaker', () => {
 
             nodeFactory(mockConfig);
             expect(MockNodeAlexaSpeaker.AlexaSpeakerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
+            expect(mockNode.setupNode).to.have.been.calledOnceWithExactly();
         });
     });
 });

@@ -85,15 +85,26 @@ describe ('AlexaListenerNode', () => {
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
 
-            expect((alexaListenerNode as any).name).to.deep.equal('some name');
-            expect((alexaListenerNode as any).url).to.deep.equal('some url');
-            expect((alexaListenerNode as any).intents).to.deep.equal(['some', 'intents']);
-
-            expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
-            expect(alexaHandlerListenStub).to.have.been.calledOnceWithExactly(mockRED, 'some url');
-            expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly('INTENT_REQUEST', sinon.match.func);
-            expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly('close', sinon.match.func);
+            expect(alexaListenerNode.name).to.deep.equal('some name');
+            expect(alexaListenerNode.url).to.deep.equal('some url');
+            expect(alexaListenerNode.intents).to.deep.equal([]);
+            expect(alexaListenerNode.RED).to.deep.equal(mockRED);
         });
+    });
+
+    describe ('setupNode', () => {
+        const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+        alexaListenerNode.setupNode();
+
+        expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
+        expect(alexaHandlerListenStub).to.have.been.calledOnceWithExactly(mockRED, 'some url');
+        expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly(
+            'INTENT_REQUEST', (alexaListenerNode as any).intentHandler,
+        );
+        expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly(
+            'close', (alexaListenerNode as any).closeHandler,
+        );
     });
 
     describe ('intentHandler', () => {

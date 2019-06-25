@@ -1,43 +1,40 @@
-import { Node, NodeProperties, Red } from 'node-red';
+import { Node, NodeProperties, NodeType, Red } from 'node-red';
 import { AlexaHandler } from '../alexa-handler';
 import { EventEmitter } from '../event-emitter';
 import { OutputHandler } from '../output-handler';
+import { BaseNode } from './base';
 
 export interface IAlexaListenerConfig extends NodeProperties {
     url: string;
-    name: string;
     intents: string[];
 }
 
 export interface IAlexaListener extends IAlexaListenerConfig, Node {}
 
-export class AlexaListenerNode {
-    private url: string;
-    private name: string;
-    private intents: string[];
-    private RED: Red;
-    private eventEmitter: EventEmitter;
+export class AlexaListenerNode extends BaseNode {
+    public readonly url: string;
+    public readonly intents: string[];
+    public readonly eventEmitter: EventEmitter;
 
     constructor (RED: Red, config: IAlexaListenerConfig) {
-        const node = this as any as IAlexaListener;
+        super(RED, config);
 
-        RED.nodes.createNode(node, config);
-
-        this.name = config.name;
         this.url = config.url;
         this.intents = config.intents || [];
-        this.RED = RED;
-        this.eventEmitter = AlexaHandler.listen(RED, node.url);
+        this.eventEmitter = AlexaHandler.listen(RED, config.url);
+    }
+
+    public setupNode () {
+        super.setupNode();
+
+        (this as any as Node).on('close', this.closeHandler);
 
         this.eventEmitter.on('INTENT_REQUEST', this.intentHandler);
-
-        node.on('close', this.closeHandler);
     }
 
     private intentHandler (msg) {
         if (msg.payload.session.new) {
-            const node = this as any as IAlexaListener;
-            node.send(OutputHandler.selectOutputFromArray(node.intents, msg.payload.intent, msg));
+            this.send(OutputHandler.selectOutputFromArray(this.intents, msg.payload.intent, msg));
         }
     }
 

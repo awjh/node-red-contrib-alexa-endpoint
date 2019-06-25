@@ -1,25 +1,28 @@
 import { Node, NodeProperties, Red } from 'node-red';
 import { AlexaHandler } from '../alexa-handler';
+import { BaseNode } from './base';
 
 export interface IAlexaSpeakerConfig extends NodeProperties {
     message: string;
 }
 
-export interface IAlexaSpeaker extends IAlexaSpeakerConfig, Node {}
+export interface IAlexaSpeaker extends IAlexaSpeakerConfig, Node {
+    setupNode: () => void;
+}
 
-export class AlexaSpeakerNode {
+export class AlexaSpeakerNode extends BaseNode {
     public readonly message: string;
-    public readonly name: string;
 
     constructor (RED: Red, config: IAlexaSpeakerConfig) {
-        const node = this as any as IAlexaSpeaker;
+        super(RED, config);
 
-        RED.nodes.createNode(node, config);
-
-        this.name = config.name;
         this.message = config.message;
+    }
 
-        node.on('input', this.inputHandler);
+    public setupNode () {
+        super.setupNode();
+
+        (this as any as Node).on('input', this.inputHandler);
     }
 
     private inputHandler (msg) {

@@ -4,9 +4,6 @@ import { AlexaHandler } from './utils/alexa-handler';
 import { IAlexaSpeaker, IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
 import { OutputHandler } from './utils/output-handler';
 
-interface IAlexaSpeakerListenerConfig extends IAlexaListenerConfig, IAlexaSpeakerConfig {}
-interface IAlexaSpeakerListener extends IAlexaListener, IAlexaSpeaker {}
-
 function AlexaSpeakerListener (RED: Red) {
 
     class AlexaSpeakerListenerNode {
