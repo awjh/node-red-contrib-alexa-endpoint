@@ -10,7 +10,7 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 // tslint:disable: no-unused-expression
-describe ('AlexaListenerNode', () => {
+describe.only ('AlexaListenerNode', () => {
 
     let sandbox: sinon.SinonSandbox;
 
@@ -62,18 +62,10 @@ describe ('AlexaListenerNode', () => {
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
 
-            expect((alexaListenerNode as any).name).to.deep.equal('some name');
-            expect((alexaListenerNode as any).url).to.deep.equal('some url');
-            expect((alexaListenerNode as any).intents).to.deep.equal(['some', 'intents']);
-
-            expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
-            expect(alexaHandlerListenStub).to.have.been.calledOnceWithExactly(mockRED, 'some url');
-            expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly(
-                'INTENT_REQUEST', (alexaListenerNode as any).intentHandler,
-            );
-            expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly(
-                'close', (alexaListenerNode as any).closeHandler,
-            );
+            expect(alexaListenerNode.name).to.deep.equal('some name');
+            expect(alexaListenerNode.url).to.deep.equal('some url');
+            expect(alexaListenerNode.intents).to.deep.equal(['some', 'intents']);
+            expect(alexaListenerNode.eventEmitter).to.deep.equal(mockEventEmitter);
         });
 
         it ('should handle no intent passed in config', () => {
@@ -88,23 +80,43 @@ describe ('AlexaListenerNode', () => {
             expect(alexaListenerNode.name).to.deep.equal('some name');
             expect(alexaListenerNode.url).to.deep.equal('some url');
             expect(alexaListenerNode.intents).to.deep.equal([]);
-            expect(alexaListenerNode.RED).to.deep.equal(mockRED);
+            expect(alexaListenerNode.eventEmitter).to.deep.equal(mockEventEmitter);
         });
     });
 
     describe ('setupNode', () => {
-        const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+        it ('should setup the close and event listener', () => {
+            const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
 
-        alexaListenerNode.setupNode();
+            alexaListenerNode.setupNode();
 
-        expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
-        expect(alexaHandlerListenStub).to.have.been.calledOnceWithExactly(mockRED, 'some url');
-        expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly(
-            'INTENT_REQUEST', (alexaListenerNode as any).intentHandler,
-        );
-        expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly(
-            'close', (alexaListenerNode as any).closeHandler,
-        );
+            expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaListenerNode, mockConfig);
+            expect(alexaHandlerListenStub).to.have.been.calledOnceWithExactly(mockRED, 'some url');
+            expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly(
+                'INTENT_REQUEST', sinon.match.func,
+            );
+            expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly(
+                'close', (alexaListenerNode as any).closeHandler,
+            );
+        });
+
+        describe ('intent request handler', () => {
+            it ('should call intentHandler', () => {
+                const mockMsg = {
+                    some: 'message',
+                };
+
+                const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+                const intentStub = sandbox.stub(alexaListenerNode, 'intentHandler');
+
+                alexaListenerNode.setupNode();
+
+                mockEventEmitter.on.getCall(0).args[1](mockMsg);
+
+                intentStub.should.have.been.calledOnceWithExactly(mockMsg);
+            });
+        })
     });
 
     describe ('intentHandler', () => {

@@ -26,14 +26,14 @@ describe ('#AlexaListener', () => {
     });
 
     beforeEach(() => {
-        AlexaListener = noCacheRequire('./alexa-listener');
-
         mockRED = {
             nodes: {
                 createNode: sinon.stub(),
                 registerType: sinon.stub(),
             },
         };
+
+        AlexaListener = noCacheRequire('./alexa-listener');
     });
 
     afterEach(() => {
@@ -44,40 +44,46 @@ describe ('#AlexaListener', () => {
         mockery.disable();
     });
 
-    it ('should register the type', async () => {
+    it ('should register the type', () => {
         (AlexaListener as any)(mockRED);
 
         expect(mockRED.nodes.registerType).to.have.been.calledOnceWithExactly('alexa-listener', sinon.match.func);
     });
 
-    describe ('node factory', () => {
-        it ('should create a new AlexaSpeakerNode', () => {
-            const mockConfig: IAlexaListenerConfig = {
-                id: 'some id',
-                intents: ['some', 'intents'],
-                name: 'some name',
-                type: 'some type',
-                url: 'some url',
-            };
+    describe ('Node', () => {
 
-            const mockNode = {
-                setupNode: sinon.stub(),
-            };
+        const mockNode = {
+            setupNode: sinon.stub(),
+        };
 
-            const MockNodeAlexaListener = {
-                AlexaListenerNode: sinon.stub().returns(mockNode),
-            };
+        const MockNodeAlexaListener = {
+            AlexaListenerNode: sinon.stub().returns(mockNode),
+        };
 
+        beforeEach(() => {
             mockery.registerMock('./utils/nodes/alexa-listener', MockNodeAlexaListener);
             AlexaListener = noCacheRequire('./alexa-listener');
+        });
 
-            (AlexaListener as any)(mockRED);
+        describe ('constructor', () => {
+            it ('should call setup on its extended node', () => {
+                (AlexaListener as any)(mockRED);
 
-            const nodeFactory = mockRED.nodes.registerType.getCall(0).args[1];
+                const Node = mockRED.nodes.registerType.getCall(0).args[1];
 
-            nodeFactory(mockConfig);
-            expect(MockNodeAlexaListener.AlexaListenerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
-            expect(mockNode.setupNode).to.have.been.calledOnceWithExactly();
+                const mockConfig: IAlexaListenerConfig = {
+                    id: 'some id',
+                    intents: ['some', 'intents'],
+                    name: 'some name',
+                    type: 'some type',
+                    url: 'some url',
+                };
+
+                Node(mockConfig);
+
+                expect(MockNodeAlexaListener.AlexaListenerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
+                expect(mockNode.setupNode).to.have.been.calledOnceWithExactly();
+            });
         });
     });
 });

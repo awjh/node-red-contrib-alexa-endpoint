@@ -26,14 +26,14 @@ describe ('#AlexaSpeaker', () => {
     });
 
     beforeEach(() => {
-        AlexaSpeaker = noCacheRequire('./alexa-speaker');
-
         mockRED = {
             nodes: {
                 createNode: sinon.stub(),
                 registerType: sinon.stub(),
             },
         };
+
+        AlexaSpeaker = noCacheRequire('./alexa-speaker');
     });
 
     afterEach(() => {
@@ -50,33 +50,38 @@ describe ('#AlexaSpeaker', () => {
         expect(mockRED.nodes.registerType).to.have.been.calledOnceWithExactly('alexa-speaker', sinon.match.func);
     });
 
-    describe ('node factory', () => {
-        it ('should create a new AlexaSpeakerNode', () => {
-            const mockConfig: IAlexaSpeakerConfig = {
-                id: 'some id',
-                message: 'some message',
-                name: 'some name',
-                type: 'some type',
-            };
+    describe ('Node', () => {
+        const mockNode = {
+            setupNode: sinon.stub(),
+        };
 
-            const mockNode = {
-                setupNode: sinon.stub(),
-            };
+        const MockNodeAlexaSpeaker = {
+            AlexaSpeakerNode: sinon.stub().returns(mockNode),
+        };
 
-            const MockNodeAlexaSpeaker = {
-                AlexaSpeakerNode: sinon.stub().returns(mockNode),
-            };
-
+        beforeEach(() => {
             mockery.registerMock('./utils/nodes/alexa-speaker', MockNodeAlexaSpeaker);
             AlexaSpeaker = noCacheRequire('./alexa-speaker');
+        });
 
-            (AlexaSpeaker as any)(mockRED);
+        describe ('constructor', () => {
+            it ('should call setup on its extended node', () => {
+                (AlexaSpeaker as any)(mockRED);
 
-            const nodeFactory = mockRED.nodes.registerType.getCall(0).args[1];
+                const Node = mockRED.nodes.registerType.getCall(0).args[1];
 
-            nodeFactory(mockConfig);
-            expect(MockNodeAlexaSpeaker.AlexaSpeakerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
-            expect(mockNode.setupNode).to.have.been.calledOnceWithExactly();
+                const mockConfig: IAlexaSpeakerConfig = {
+                    id: 'some id',
+                    message: 'some message',
+                    name: 'some name',
+                    type: 'some type',
+                };
+
+                Node(mockConfig);
+
+                expect(MockNodeAlexaSpeaker.AlexaSpeakerNode).to.have.been.calledOnceWithExactly(mockRED, mockConfig);
+                expect(mockNode.setupNode).to.have.been.calledOnceWithExactly();
+            });
         });
     });
 });

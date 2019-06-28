@@ -48,18 +48,20 @@ describe ('#AlexaSpeakerNode', () => {
     });
 
     describe ('setupNode', () => {
-        mockRED.nodes.createNode.callsFake((node) => {
-            node.on = sinon.stub();
+        it ('should setup the input listener', () => {
+            mockRED.nodes.createNode.callsFake((node) => {
+                node.on = sinon.stub();
+            });
+
+            const alexaSpeakerNode = new AlexaSpeakerNode(mockRED as any, mockConfig) as any as IAlexaSpeaker;
+
+            alexaSpeakerNode.setupNode();
+
+            expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaSpeakerNode, mockConfig);
+            expect(alexaSpeakerNode.on).to.have.been.calledOnceWithExactly(
+                'input', (alexaSpeakerNode as any).inputHandler,
+            );
         });
-
-        const alexaSpeakerNode = new AlexaSpeakerNode(mockRED as any, mockConfig) as any as IAlexaSpeaker;
-
-        alexaSpeakerNode.setupNode();
-
-        expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaSpeakerNode, mockConfig);
-        expect(alexaSpeakerNode.on).to.have.been.calledOnceWithExactly(
-            'input', (alexaSpeakerNode as any).inputHandler,
-        );
     });
 
     describe ('inputHandler', () => {
