@@ -1,11 +1,12 @@
 {
-  "name": "node-red-contrib-alexa-app-server",
+  "name": "node-red-contrib-alexa-endpoints",
   "version": "0.0.1",
   "description": "node red contrib for starting alexa app server",
   "main": "dist/index.js",
   "scripts": {
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "pretest": "npm run lint",
+    "prepare" : "npm run build",
     "test": "nyc mocha -r ts-node/register src/**/*.spec.ts",
     "build": "tsc && cp ./src/*.html dist",
     "watch": "nodemon -L --watch src --verbose -e ts,html --exec './buildAndRun.sh'"

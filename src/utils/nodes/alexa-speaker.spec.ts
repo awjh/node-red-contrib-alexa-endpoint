@@ -41,35 +41,47 @@ describe ('#AlexaSpeakerNode', () => {
         it ('should assign values when constructed, create node and listen', () => {
             const alexaSpeakerNode = new AlexaSpeakerNode(mockRED as any, mockConfig);
 
-            expect(alexaSpeakerNode.name).to.deep.equal('some name');
             expect(alexaSpeakerNode.message).to.deep.equal('some message');
-            expect(alexaSpeakerNode.RED).to.deep.equal(mockRED);
         });
     });
 
     describe ('setupNode', () => {
         it ('should setup the input listener', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
-
             const alexaSpeakerNode = new AlexaSpeakerNode(mockRED as any, mockConfig) as any as IAlexaSpeaker;
+
+            const onStub = sinon.stub(alexaSpeakerNode, 'on');
 
             alexaSpeakerNode.setupNode();
 
             expect(mockRED.nodes.createNode).to.have.been.calledOnceWithExactly(alexaSpeakerNode, mockConfig);
-            expect(alexaSpeakerNode.on).to.have.been.calledOnceWithExactly(
-                'input', (alexaSpeakerNode as any).inputHandler,
+            expect(onStub).to.have.been.calledOnceWithExactly(
+                'input', sinon.match.func,
             );
+        });
+
+        describe ('input handler', () => {
+            it ('should call inputHandler', () => {
+                const mockMsg = {
+                    some: 'message',
+                };
+
+                const alexaListenerNode = new AlexaSpeakerNode(mockRED as any, mockConfig);
+
+                const onStub = sinon.stub(alexaListenerNode, 'on');
+
+                const inputStub = sandbox.stub(alexaListenerNode, 'inputHandler');
+
+                alexaListenerNode.setupNode();
+
+                onStub.getCall(0).args[1](mockMsg);
+
+                expect(inputStub).to.have.been.calledOnceWithExactly(mockMsg);
+            });
         });
     });
 
     describe ('inputHandler', () => {
         it ('should send a speak request', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
-
             const speakStub = sandbox.stub(AlexaHandler, 'speak');
 
             const alexaSpeakerNode = new AlexaSpeakerNode(mockRED as any, mockConfig);

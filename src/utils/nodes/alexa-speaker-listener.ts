@@ -2,15 +2,24 @@ import { Red } from 'node-red';
 import { AlexaHandler } from '../alexa-handler';
 import { EventEmitter } from '../event-emitter';
 import { OutputHandler } from '../output-handler';
-import { AlexaListenerNode, IAlexaListener, IAlexaListenerConfig } from './alexa-listener';
-import { AlexaSpeakerNode, IAlexaSpeaker, IAlexaSpeakerConfig } from './alexa-speaker';
+import { AlexaListenerNode, IAlexaListener, IAlexaListenerConfig, IAlexaListenerNode } from './alexa-listener';
+import { AlexaSpeakerNode, IAlexaSpeaker, IAlexaSpeakerConfig, IAlexaSpeakerNode } from './alexa-speaker';
 import { BaseNode } from './base';
 
 export interface IAlexaSpeakerListenerConfig extends IAlexaListenerConfig, IAlexaSpeakerConfig {}
 export interface IAlexaSpeakerListener extends IAlexaListener, IAlexaSpeaker {}
+interface IAlexaSpeakerListenerNode extends IAlexaListenerNode, IAlexaSpeakerNode {}
 
-export class AlexaSpeakerListenerNode extends BaseNode {
+export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerListenerNode {
     public readonly currentSessions: string[];
+
+    // LISTENER PROPERTIES
+    public readonly url: string;
+    public readonly intents: string[];
+    public readonly eventEmitter: EventEmitter;
+
+    // SPEAKER PROPERTIES
+    public readonly message: string;
 
     private alexaListener: AlexaListenerNode;
     private alexaSpeaker: AlexaSpeakerNode;
@@ -19,7 +28,7 @@ export class AlexaSpeakerListenerNode extends BaseNode {
     private setupSpeakerNode: () => void;
 
     constructor (RED: Red, config: IAlexaSpeakerListenerConfig) {
-        super(RED, config);
+        super(RED, config) /* istanbul ignore next */;
 
         this.alexaListener = new AlexaListenerNode(RED, config);
         this.alexaSpeaker = new AlexaSpeakerNode(RED, config);
@@ -37,6 +46,8 @@ export class AlexaSpeakerListenerNode extends BaseNode {
         this.setupListenerNode = this.alexaListener.setupNode;
         this.setupSpeakerNode = this.alexaSpeaker.setupNode;
 
+        this.closeHandler = (this.alexaListener as any).closeHandler;
+
         this.currentSessions = [];
     }
 
@@ -53,14 +64,13 @@ export class AlexaSpeakerListenerNode extends BaseNode {
 
             if (outputs.every((output) => output === null)) {
                 AlexaHandler.speak(
-                    'Sorry I don\'t understsand your response in this context. ' + this.message,
+                    'Sorry I don\'t understsand your response in this context. Please try again.',
                     msg,
                     false,
                 );
             } else {
                 const sessionIndex = this.currentSessions.indexOf(msg.payload.session.sessionId);
                 this.currentSessions.splice(sessionIndex, 1);
-                console.log(this.currentSessions);
                 this.send(outputs);
             }
         }
@@ -72,6 +82,7 @@ export class AlexaSpeakerListenerNode extends BaseNode {
         this.currentSessions.push(inputMsg.payload.session.sessionId);
     }
 
+    // istanbul ignore next
     // tslint:disable-next-line:no-empty
     protected closeHandler () {} // gets overwritten
 }

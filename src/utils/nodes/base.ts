@@ -10,7 +10,7 @@ export class BaseNode extends Node  {
     private config: NodeProperties;
 
     constructor (RED: Red, config: NodeProperties) {
-        super(config);
+        super(config) /* istanbul ignore next */;
 
         this.name = config.name;
         this.RED = RED;
@@ -23,8 +23,7 @@ export class BaseNode extends Node  {
         this.RED.nodes.createNode(node, JSON.parse(JSON.stringify(this.config)));
     }
 
-    protected send (msg) {
-        const node = this as any as INode;
-        node.send(msg);
-    }
+    // istanbul ignore next
+    // tslint:disable-next-line:no-empty
+    protected send (msg) {} // gets overwritten
 }

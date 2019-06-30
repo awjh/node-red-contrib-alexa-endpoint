@@ -10,11 +10,15 @@ export interface IAlexaSpeaker extends IAlexaSpeakerConfig, Node {
     setupNode: () => void;
 }
 
-export class AlexaSpeakerNode extends BaseNode {
+export interface IAlexaSpeakerNode {
+    message: string;
+}
+
+export class AlexaSpeakerNode extends BaseNode implements IAlexaSpeakerNode {
     public readonly message: string;
 
     constructor (RED: Red, config: IAlexaSpeakerConfig) {
-        super(RED, config);
+        super(RED, config) /* istanbul ignore next */;
 
         this.message = config.message;
     }

@@ -10,7 +10,7 @@ const expect = chai.expect;
 chai.use(sinonChai);
 
 // tslint:disable: no-unused-expression
-describe.only ('AlexaListenerNode', () => {
+describe ('#AlexaListenerNode', () => {
 
     let sandbox: sinon.SinonSandbox;
 
@@ -56,10 +56,6 @@ describe.only ('AlexaListenerNode', () => {
 
     describe ('constructor', () => {
         it ('should assign values when constructed, create node and listen', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
-
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
 
             expect(alexaListenerNode.name).to.deep.equal('some name');
@@ -69,10 +65,6 @@ describe.only ('AlexaListenerNode', () => {
         });
 
         it ('should handle no intent passed in config', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
-
             delete mockConfig.intents;
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
@@ -86,7 +78,10 @@ describe.only ('AlexaListenerNode', () => {
 
     describe ('setupNode', () => {
         it ('should setup the close and event listener', () => {
+
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+            const onStub = sinon.stub(alexaListenerNode, 'on');
 
             alexaListenerNode.setupNode();
 
@@ -95,8 +90,8 @@ describe.only ('AlexaListenerNode', () => {
             expect(mockEventEmitter.on).to.have.been.calledOnceWithExactly(
                 'INTENT_REQUEST', sinon.match.func,
             );
-            expect((alexaListenerNode as any).on).to.have.been.calledOnceWithExactly(
-                'close', (alexaListenerNode as any).closeHandler,
+            expect(onStub).to.have.been.calledOnceWithExactly(
+                'close', sinon.match.func,
             );
         });
 
@@ -114,21 +109,34 @@ describe.only ('AlexaListenerNode', () => {
 
                 mockEventEmitter.on.getCall(0).args[1](mockMsg);
 
-                intentStub.should.have.been.calledOnceWithExactly(mockMsg);
+                expect(intentStub).to.have.been.calledOnceWithExactly(mockMsg);
             });
-        })
+        });
+
+        describe ('close handler', () => {
+            it ('should call close handler', () => {
+                const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+                const onStub = sinon.stub(alexaListenerNode, 'on');
+
+                const closeStub = sandbox.stub(alexaListenerNode, 'closeHandler');
+
+                alexaListenerNode.setupNode();
+
+                onStub.getCall(0).args[1]();
+
+                expect(closeStub).to.have.been.calledOnceWithExactly();
+            });
+        });
     });
 
     describe ('intentHandler', () => {
         it ('should call send when new session', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-                node.send = sinon.stub();
-            });
-
             const selectOutputStub = sandbox.stub(OutputHandler, 'selectOutputFromArray').returns(['some output']);
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+            const sendStub = sandbox.stub(alexaListenerNode, 'send');
 
             const fakeMessage = {
                 payload: {
@@ -142,18 +150,15 @@ describe.only ('AlexaListenerNode', () => {
             (alexaListenerNode as any).intentHandler(fakeMessage);
 
             expect(selectOutputStub).to.have.been.calledOnceWithExactly(['some', 'intents'], 'intent', fakeMessage);
-            expect((alexaListenerNode as any).send).to.have.been.calledOnceWithExactly(['some output']);
+            expect(sendStub).to.have.been.calledOnceWithExactly(['some output']);
         });
 
         it ('should do nothing when not a new session', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-                node.send = sinon.stub();
-            });
-
             const selectOutputStub = sandbox.stub(OutputHandler, 'selectOutputFromArray').returns(['some output']);
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);
+
+            const sendStub = sandbox.stub(alexaListenerNode, 'send');
 
             const fakeMessage = {
                 payload: {
@@ -167,16 +172,12 @@ describe.only ('AlexaListenerNode', () => {
             (alexaListenerNode as any).intentHandler(fakeMessage);
 
             expect(selectOutputStub).to.not.have.been.called;
-            expect((alexaListenerNode as any).send).to.not.have.been.called;
+            expect(sendStub).to.not.have.been.called;
         });
     });
 
     describe ('closeHandler', () => {
         it ('should close listeners', () => {
-            mockRED.nodes.createNode.callsFake((node) => {
-                node.on = sinon.stub();
-            });
-
             const unlistenStub = sandbox.stub(AlexaHandler, 'unlisten');
 
             const alexaListenerNode = new AlexaListenerNode(mockRED as any, mockConfig);

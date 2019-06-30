@@ -11,13 +11,19 @@ export interface IAlexaListenerConfig extends NodeProperties {
 
 export interface IAlexaListener extends IAlexaListenerConfig, Node {}
 
-export class AlexaListenerNode extends BaseNode {
+export interface IAlexaListenerNode {
+    url: string;
+    intents: string[];
+    eventEmitter: EventEmitter;
+}
+
+export class AlexaListenerNode extends BaseNode implements IAlexaListenerNode {
     public readonly url: string;
     public readonly intents: string[];
     public readonly eventEmitter: EventEmitter;
 
     constructor (RED: Red, config: IAlexaListenerConfig) {
-        super(RED, config);
+        super(RED, config) /* istanbul ignore next */;
 
         this.url = config.url;
         this.intents = config.intents || [];
