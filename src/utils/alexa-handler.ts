@@ -1,5 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
+import { Red } from 'node-red';
 import { EventEmitter } from './event-emitter';
 
 const reqResNext = (req, res, next) => { next(); };
@@ -18,7 +19,7 @@ interface IEventListeners {
 
 export class AlexaHandler {
 
-    public static listen (RED: any, url: string): EventEmitter {
+    public static listen (RED: Red, url: string): EventEmitter {
         const HTTPExists = RED.httpNode._router &&
             RED.httpNode._router.stack &&
             RED.httpNode._router.stack.some((route) => {
@@ -81,7 +82,7 @@ export class AlexaHandler {
         return eventEmitter;
     }
 
-    public static unlisten (RED, url: string, eventEmitter: EventEmitter) {
+    public static unlisten (RED: Red, url: string, eventEmitter: EventEmitter) {
         const selectedEventEmitters = this.eventEmitters[url];
 
         if (Array.isArray(selectedEventEmitters)) {
@@ -126,5 +127,6 @@ export class AlexaHandler {
             version: '1.0',
         });
     }
+
     private static eventEmitters: IEventListeners = {};
 }
