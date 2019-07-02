@@ -4,7 +4,7 @@ import { AlexaSpeakerNode, IAlexaSpeakerConfig } from './utils/nodes/alexa-speak
 function AlexaSpeaker (RED: Red) {
     class Node extends AlexaSpeakerNode {
         constructor (config: IAlexaSpeakerConfig) {
-            super(RED, config);
+            super(RED, config) /* istanbul ignore next */;
 
             this.setupNode();
         }

@@ -1,5 +1,4 @@
 import * as chai from 'chai';
-import * as cookieParser from 'cookie-parser';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
 import { AlexaHandler } from './alexa-handler';
@@ -276,6 +275,71 @@ describe ('#AlexaHandler', () => {
             expect(mockRED.httpNode._router.stack[0].route.path).to.deep.equal('/some/url');
             expect((AlexaHandler as any).eventEmitters['/some/url'].length).to.deep.equal(2);
             expect((AlexaHandler as any).eventEmitters['/some/other/url'].length).to.deep.equal(0);
+        });
+    });
+
+    describe ('speak', () => {
+        let fakeMessage;
+        let expectedMessage;
+
+        beforeEach(() => {
+            fakeMessage = {
+                res: {
+                    send: sinon.stub(),
+                },
+            };
+
+            expectedMessage = {
+                response: {
+                    directives: [],
+                    outputSpeech: {
+                        type: 'PlainText',
+                    },
+                    type: '_DEFAULT_RESPONSE',
+                },
+                sessionAttributes: {},
+                version: '1.0',
+            };
+        });
+
+        it ('should use the node message in speak request', () => {
+            AlexaHandler.speak('some message', fakeMessage);
+
+            expectedMessage.response.outputSpeech.text = 'some message';
+            expectedMessage.response.shouldEndSession = true;
+
+            expect(fakeMessage.res.send).to.have.been.calledOnceWithExactly(expectedMessage);
+        });
+
+        it ('should use the message in msg in speak request when valid type', () => {
+            fakeMessage.message = 'some other message';
+
+            AlexaHandler.speak('some message', fakeMessage);
+
+            expectedMessage.response.outputSpeech.text = 'some other message';
+            expectedMessage.response.shouldEndSession = true;
+
+            expect(fakeMessage.res.send).to.have.been.calledOnceWithExactly(expectedMessage);
+        });
+
+        it ('should use the node message in speak request when message in msg not valid type', () => {
+            fakeMessage.message = {};
+
+            AlexaHandler.speak('some message', fakeMessage);
+
+            expectedMessage.response.outputSpeech.text = 'some message';
+            expectedMessage.response.shouldEndSession = true;
+
+            expect(fakeMessage.res.send).to.have.been.calledOnceWithExactly(expectedMessage);
+        });
+
+        it ('should use the passed end session value', () => {
+            AlexaHandler.speak('some message', fakeMessage, false);
+
+            expectedMessage.response.outputSpeech.text = 'some message';
+            expectedMessage.response.shouldEndSession = false;
+
+            expect(fakeMessage.res.send).to.have.been.calledOnceWithExactly(expectedMessage);
         });
     });
 });

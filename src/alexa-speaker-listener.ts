@@ -5,7 +5,7 @@ function AlexaSpeakerListener (RED: Red) {
 
     class Node extends AlexaSpeakerListenerNode {
         constructor (config: IAlexaSpeakerListenerConfig) {
-            super(RED, config);
+            super(RED, config) /* istanbul ignore next */;
 
             this.setupNode();
         }

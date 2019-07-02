@@ -4,7 +4,7 @@ import { AlexaListenerNode, IAlexaListenerConfig } from './utils/nodes/alexa-lis
 function AlexaListener (RED: Red) {
     class Node extends AlexaListenerNode {
         constructor (config: IAlexaListenerConfig) {
-            super(RED, config);
+            super(RED, config) /* istanbul ignore next */;
 
             this.setupNode();
         }
