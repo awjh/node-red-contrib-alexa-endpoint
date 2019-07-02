@@ -61,7 +61,8 @@ export class AlexaHandler {
 
             const errorHandler = (err, req, res, next) => {
                 console.warn(err);
-                res.sendStatus(500);
+                res.status(500);
+                res.send('Error receiving post. ' + err.message);
             };
 
             RED.httpNode.post(
