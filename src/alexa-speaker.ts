@@ -1,4 +1,5 @@
 import { Red } from 'node-red';
+import { registerType } from './utils/node-red';
 import { AlexaSpeakerNode, IAlexaSpeakerConfig } from './utils/nodes/alexa-speaker';
 
 function AlexaSpeaker (RED: Red) {
@@ -9,8 +10,7 @@ function AlexaSpeaker (RED: Red) {
             this.setupNode();
         }
     }
-
-    RED.nodes.registerType('alexa-speaker', Node as any);
+    registerType(RED, 'alexa-speaker', Node);
 }
 
 module.exports = AlexaSpeaker;

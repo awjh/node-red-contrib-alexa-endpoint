@@ -32,7 +32,8 @@
     "exclude": [
       "coverage/**",
       "dist/**",
-      "**/*.spec.ts"
+      "**/*.spec.ts",
+      "src/test-helpers"
     ],
     "reporter": [
       "text-summary",

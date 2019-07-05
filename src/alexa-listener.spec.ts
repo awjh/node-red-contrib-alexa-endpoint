@@ -14,9 +14,10 @@ describe ('#AlexaListener', () => {
     let mockRED: {
         nodes: {
             createNode: sinon.SinonStub;
-            registerType: sinon.SinonStub;
         },
     };
+
+    let registerStub: sinon.SinonStub;
 
     before(() => {
         mockery.enable({
@@ -29,9 +30,11 @@ describe ('#AlexaListener', () => {
         mockRED = {
             nodes: {
                 createNode: sinon.stub(),
-                registerType: sinon.stub(),
             },
         };
+
+        registerStub = sinon.stub();
+        mockery.registerMock('./utils/node-red', {registerType: registerStub});
 
         AlexaListener = noCacheRequire('./alexa-listener');
     });
@@ -47,7 +50,7 @@ describe ('#AlexaListener', () => {
     it ('should register the type', () => {
         (AlexaListener as any)(mockRED);
 
-        expect(mockRED.nodes.registerType).to.have.been.calledOnceWithExactly('alexa-listener', sinon.match.func);
+        expect(registerStub).to.have.been.calledOnceWithExactly(mockRED, 'alexa-listener', sinon.match.func);
     });
 
     describe ('Node', () => {
@@ -69,7 +72,7 @@ describe ('#AlexaListener', () => {
             it ('should call setup on its extended node', () => {
                 (AlexaListener as any)(mockRED);
 
-                const Node = mockRED.nodes.registerType.getCall(0).args[1];
+                const Node = registerStub.getCall(0).args[2];
 
                 const mockConfig: IAlexaListenerConfig = {
                     id: 'some id',
