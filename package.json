@@ -7,10 +7,10 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "pretest": "npm run lint",
     "prepare": "npm run build",
-    "test": "nyc mocha -r ts-node/register 'src/**/*.spec.ts'",
-    "preintegration": "./testing/integration/setup.sh",
-    "integration": "mocha 'src/test-helpers/integration.spec.ts",
-    "postintegration": "./testing/integration/unsetup.sh",
+    "test": "nyc mocha -r ts-node/register 'src/{,!(test)/**}/*.spec.ts'",
+    "spreintegration": "./testing/integration/setup.sh",
+    "integration": "mocha -r ts-node/register 'src/test/integration/*.spec.ts'",
+    "spostintegration": "./testing/integration/unsetup.sh",
     "build": "tsc && cp ./src/*.html dist",
     "watch": "nodemon -L --watch src --verbose -e ts,html --exec './buildAndRun.sh'"
   },
@@ -36,7 +36,7 @@
       "coverage/**",
       "dist/**",
       "**/*.spec.ts",
-      "src/test-helpers"
+      "src/test"
     ],
     "reporter": [
       "text-summary",
@@ -65,6 +65,7 @@
     "@types/lodash": "^4.14.123",
     "@types/mocha": "^5.2.7",
     "@types/mockery": "^1.4.29",
+    "@types/node": "^12.0.12",
     "@types/node-red": "^0.20.0",
     "@types/sinon": "^7.0.13",
     "@types/sinon-chai": "^3.2.2",

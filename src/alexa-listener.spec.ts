@@ -2,7 +2,7 @@ import * as chai from 'chai';
 import * as mockery from 'mockery';
 import * as sinon from 'sinon';
 import * as sinonChai from 'sinon-chai';
-import { noCacheRequire } from './test-helpers/test-helpers';
+import { noCacheRequire } from './test/helpers/test-helpers';
 import { IAlexaListenerConfig } from './utils/nodes/alexa-listener';
 
 const expect = chai.expect;
