@@ -1,8 +1,8 @@
 {
     "version": "1.0",
     "session": {
-        "new": true,
-        "sessionId": "sessionone",
+        "new": false,
+        "sessionId": "sessiontwo",
         "application": {
             "applicationId": "some skill"
         },
@@ -53,12 +53,38 @@
     },
     "request": {
         "type": "IntentRequest",
-        "requestId": "requestone",
+        "requestId": "requesttwo",
         "timestamp": "2019-07-06T08:16:35Z",
         "locale": "en-GB",
         "intent": {
-            "name": "intentone",
-            "confirmationStatus": "NONE"
+            "name": "intentthree",
+            "confirmationStatus": "NONE",
+            "slots": {
+				"exits": {
+					"name": "exits",
+					"value": "exit 2",
+					"resolutions": {
+						"resolutionsPerAuthority": [
+							{
+								"authority": "amzn1.er-authority.echo-sdk.amzn1.ask.skill.817b3db3-2c2d-4a0a-9c19-214e3dc35961.exits",
+								"status": {
+									"code": "ER_SUCCESS_MATCH"
+								},
+								"values": [
+									{
+										"value": {
+											"name": "exit one",
+											"id": "e520e4a9e10774965c8bff3b67befe9a"
+										}
+									}
+								]
+							}
+						]
+					},
+					"confirmationStatus": "NONE",
+					"source": "USER"
+				}
+			}
         }
     }
 }

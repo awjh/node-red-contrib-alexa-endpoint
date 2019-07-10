@@ -57,7 +57,7 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
     }
 
     protected intentHandler (msg) {
-        if (this.currentSessions.includes(msg.payload.session.sessionId)) {
+        if (!msg.payload.session.new && this.currentSessions.includes(msg.payload.session.sessionId)) {
             msg.actioned = true;
 
             const outputs = OutputHandler.selectOutputFromArray(this.intents, msg.payload.intent, msg);

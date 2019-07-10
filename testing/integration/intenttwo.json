@@ -2,7 +2,7 @@
     "version": "1.0",
     "session": {
         "new": true,
-        "sessionId": "sessionone",
+        "sessionId": "sessiontwo",
         "application": {
             "applicationId": "some skill"
         },
@@ -53,11 +53,11 @@
     },
     "request": {
         "type": "IntentRequest",
-        "requestId": "requestone",
+        "requestId": "requesttwo",
         "timestamp": "2019-07-06T08:16:35Z",
         "locale": "en-GB",
         "intent": {
-            "name": "intentone",
+            "name": "intenttwo",
             "confirmationStatus": "NONE"
         }
     }
