@@ -64,7 +64,7 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
 
             if (outputs.every((output) => output === null)) {
                 AlexaHandler.speak(
-                    'Sorry I don\'t understsand your response in this context. Please try again.',
+                    'Sorry I don\'t understand your response in this context. Please try again.',
                     msg,
                     false,
                 );

@@ -136,7 +136,7 @@ describe ('#AlexaSpeakerListenerNode', () => {
                 alexaSpeakerListenerNode.intents, 'intent', fakeMessage,
             );
             expect(speakStub).to.have.been.calledOnceWithExactly(
-                'Sorry I don\'t understsand your response in this context. Please try again.',
+                'Sorry I don\'t understand your response in this context. Please try again.',
                 fakeMessage,
                 false,
             );
