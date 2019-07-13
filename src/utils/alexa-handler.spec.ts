@@ -164,6 +164,27 @@ describe ('#AlexaHandler', () => {
                 // tslint:disable-next-line: no-unused-expression
                 expect(ee4.emit).to.have.not.been.called;
             });
+
+            it ('should handle when slot not set', () => {
+                delete req.body.request.intent.slots;
+
+                callback(req, res);
+
+                const expectedMessage: any = {
+                    actioned: true,
+                    payload: JSON.parse(JSON.stringify(req.body)),
+                    req,
+                    res,
+                };
+                expectedMessage.payload.intent = 'some intent';
+
+                expect(ee.emit).to.have.been.calledOnceWithExactly('INTENT_REQUEST', expectedMessage);
+                expect(ee2.emit).to.have.been.calledOnceWithExactly('INTENT_REQUEST', expectedMessage);
+                // tslint:disable-next-line: no-unused-expression
+                expect(ee3.emit).to.have.not.been.called;
+                // tslint:disable-next-line: no-unused-expression
+                expect(ee4.emit).to.have.not.been.called;
+            });
         });
 
         describe ('errorHandler', () => {
