@@ -14,7 +14,7 @@ mv tmp.json $DIR/package.json
 git remote add repo https://${GH_TOKEN}@github.com/awjh/node-red-contrib-alexa-endpoint
 
 if [[ -n $(git status -s) ]]; then
-    git add $DIR/package.json
+    git add --all
     git commit -s -m "Release required version bump $VERSION"
     git push repo master
 fi
