@@ -5,6 +5,8 @@ ME=`basename "$0"`
 
 cd $DIR
 
+git checkout master
+
 VERSION=$(npm --no-git-tag-version version patch)
 
 git add --all
