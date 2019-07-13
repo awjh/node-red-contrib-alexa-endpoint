@@ -1,8 +1,16 @@
 language: node_js
 node_js:
-  - "lts/*"
+- lts/*
 before_script:
-  - npm install -g node-red
+- npm install -g node-red
 branches:
-    only:
-      - master
+  only:
+  - master
+deploy:
+  provider: npm
+  email: andrewhurt@btinternet.com
+  api_key:
+    secure: ADN7wpE4KM10HcsMGYJvitff47+IeTxCeXckJayhAmWF7s2x0gCdt7igJhh2dPhyZiCLpEqNoHkfETY/NfhtIDx+tcf/7SeuEV8iThvKo+DCJrE+XcVHlLgZ5WerYOs40DwUUzqOEhFkEs5XG64tYns8IQJraJ+JwbmBTg1yaOhomfqroCa9U6a2Nv+ifD9axNyXINj016YatSAIyEOHQdcgH1Bu3cM79u4rcRH5Ic3iz07fdGfjFSruwsXQNR7RBUHUo7u6hoRcprxdTplYiBAwjVEAq4nc4mK+i6pBzn5v/YsmgI29mdPWMI0aJGx2UfnzYhjreRYPVIJSb2c1Va9b6lqNBwrcA/HVXAO6Zu6uDs+Fsl+rPSCGzrtiXjrgMF4YAOvE08srB48rG9u4u73lrOFrPnlPOoTVwG1cxuq0k1oyP12sUY+t0doVRtSSHl20VQbbKjsTDGrPk5MH4b3EQbmvX1HMi6xwnEynX3/YWzw5sBYYOapC+eYfSoTJ4ldZKg6heMCX/hUWWhSO8aYH94WkQwpLJt6hG3HuNCv2MXvur58Vq3NdxPDnVdjsofVelFG1bUPuPBKHQSu4ySpGE05aaMArdOJ76gy7yimFVWSiraBVWlNe8hPnTk5y/dvrFi5bvbXfONcDQTcK7opSIgGNJiKiWr3o1zzojbA=
+  on:
+    tags: true
+    repo: awjh/node-red-contrib-alexa-endpoint
