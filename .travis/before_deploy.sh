@@ -12,9 +12,10 @@ jq -r ".version=\"$VERSION\"" "$DIR/package.json" | cat > tmp.json
 mv tmp.json $DIR/package.json
 
 git remote add repo https://${GH_TOKEN}@github.com/awjh/node-red-contrib-alexa-endpoint
+git fetch repo
 
 if [[ -n $(git status -s) ]]; then
     git add --all
-    git commit -s -m "Release required version bump $VERSION"
+    git commit -s -m "Release required version bump $VERSION [skip travis]"
     git push repo master
 fi

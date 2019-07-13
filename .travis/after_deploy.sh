@@ -8,5 +8,5 @@ cd $DIR
 VERSION=$(npm --no-git-tag-version version patch)
 
 git add --all
-git commit -s -m "Version bump $VERSION"
+git commit -s -m "Version bump $VERSION [skip travis]"
 git push repo master
