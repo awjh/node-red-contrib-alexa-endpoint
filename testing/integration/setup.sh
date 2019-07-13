@@ -25,6 +25,13 @@ cd "$NODE_FOLDER"
 npm install
 npm run build
 
+if [ ! -d "$NODE_RED" ]; then
+    node-red &
+    sleep 5s
+    kill -9 $(lsof -i :1880 | grep 'node' | awk '{print $2}')
+    kill -9 $(pidof node-red) # test on mac
+fi
+
 cd "$NODE_RED"
 npm install "$NODE_FOLDER"
 

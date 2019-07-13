@@ -30,6 +30,9 @@
     "alexa"
   ],
   "nyc": {
+    "require": [
+        "ts-node/register"
+    ],
     "extension": [
       ".ts"
     ],
