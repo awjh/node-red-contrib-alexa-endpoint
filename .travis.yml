@@ -16,3 +16,7 @@ deploy:
   on:
     tags: true
     repo: awjh/node-red-contrib-alexa-endpoint
+notifications:
+  email:
+    on_success: never
+    on_failure: never
