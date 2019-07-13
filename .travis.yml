@@ -7,6 +7,8 @@ branches:
   only:
   - master
   - "/([0-9]+\\.){2}[0-9]+/"
+before_deploy:
+  - "./.travis/before_deploy.sh"
 deploy:
   provider: npm
   email: andrewhurt@btinternet.com
@@ -16,7 +18,12 @@ deploy:
   on:
     tags: true
     repo: awjh/node-red-contrib-alexa-endpoint
+after_deploy:
+  - "./.travis/after_deploy.sh"
 notifications:
   email:
     on_success: never
     on_failure: never
+env:
+  global:
+    secure: epF44wlKySl2wD2sWK/m9ahkmQdH7H3jPRRy+13Mwx0ocEWIEIvm1twYZchuW/Hjvc0yZEVG5O3YEOTOUhBgXaSqTT1P4W1waKdlHSckdBJa+l/4CxwaKHxcpciio07gcwXMbDOET67RPTb3O7oCJSu9TCR3LW7wI2LdSV1fQ9oEZFXk7gC4ik39bKz6U7A3Oie5+/PeLrJzP0BYxSZ9AT743RIhlYS1GiepR32P6mbnexuHYYVS3kLTA7vUDX7dmGkp/6L5B+x0Pijy27WqjI5p3hBPoUNZ+Tmy80mz8BRF9OaZ2srIA/V5kx9lFBAq1hkrJgxWUVhbtnkTdubjW4KaCjaneuyKhhooNr76I0sqYgShOQPVjJeIuA/kJGuMdCnbrtazUI036vWEISFRXGKv/dVeGLETNHwhr28TDhBQF/KY24dWCnZuXJy4kS9yyHgo0y2e8oWQAK5bC6PDsFPYXWV/WqKRmfRw51X+Y++oYC8GHWPYO06LAFNEj1NVLE34mD7JZI7ckoK/sYazJVlP5EDMxZDMMoLa1TZHmLsJLog9fevL70dz2NNQQbNbIjQFZQE/C6fAm4az3a5f04PRtEAKntciqQIo2clm0krBE1I0yvDUJuT+9YfVF8ouAFb3b5AmyyyOtrxyKIMHj4SXHq8C0bTdQuc20ggZmrU=
