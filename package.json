@@ -7,12 +7,13 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "pretest": "npm run lint",
     "prepare": "npm run build",
-    "test": "nyc mocha -r ts-node/register 'src/{,!(test)/**}/*.spec.ts'",
-    "spreintegration": "./testing/integration/setup.sh",
+    "test": "npm run unit && npm run integration",
+    "preintegration": "./testing/integration/setup.sh",
     "integration": "mocha -r ts-node/register 'src/test/integration/*.spec.ts'",
-    "spostintegration": "./testing/integration/unsetup.sh",
+    "postintegration": "./testing/integration/unsetup.sh",
     "build": "tsc && cp ./src/*.html dist",
-    "watch": "nodemon -L --watch src --verbose -e ts,html --exec './buildAndRun.sh'"
+    "watch": "nodemon -L --watch src --verbose -e ts,html --exec './buildAndRun.sh'",
+    "unit": "nyc mocha -r ts-node/register 'src/{,!(test)/**}/*.spec.ts'"
   },
   "node-red": {
     "nodes": {

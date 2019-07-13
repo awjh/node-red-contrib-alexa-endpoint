@@ -108,7 +108,7 @@ describe ('#AlexaSpeakerListenerNode', () => {
                 payload: {
                     intent: 'intent',
                     session: {
-                        new: true,
+                        new: false,
                         sessionId: 'some id',
                     },
                 },
@@ -119,6 +119,16 @@ describe ('#AlexaSpeakerListenerNode', () => {
 
         it ('should do nothing when id not in current stored sessions', () => {
             fakeMessage.payload.session.sessionId = 'some bad id';
+
+            (alexaSpeakerListenerNode as any).intentHandler(fakeMessage);
+
+            expect(speakStub).to.not.have.been.called;
+            expect(selectOutputStub).to.not.have.been.called;
+            expect(sendStub).to.not.have.been.called;
+        });
+
+        it ('should do nothing when session new', () => {
+            fakeMessage.payload.session.new = true;
 
             (alexaSpeakerListenerNode as any).intentHandler(fakeMessage);
 

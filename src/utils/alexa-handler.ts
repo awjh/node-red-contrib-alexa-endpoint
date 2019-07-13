@@ -46,10 +46,16 @@ export class AlexaHandler {
                     const msg = {} as any;
                     msg.payload = body;
                     msg.payload.intent = intent;
-                    msg.payload.slots = slots;
+                    msg.payload.slots = {};
                     msg.res = res;
                     msg.req = req;
                     msg.actioned = false;
+
+                    if (slots) {
+                        Object.keys(slots).forEach((slot) => {
+                            msg.payload.slots[slot] = slots[slot].value;
+                        });
+                    }
 
                     this.eventEmitters[url].some((existingEventEmitter) => {
                         existingEventEmitter.emit('INTENT_REQUEST', msg);

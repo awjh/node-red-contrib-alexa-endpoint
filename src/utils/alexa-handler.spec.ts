@@ -86,7 +86,7 @@ describe ('#AlexaHandler', () => {
                 some: 'res',
             };
 
-            let calllback;
+            let callback;
             let ee4: EventEmitter;
 
             beforeEach(() => {
@@ -114,7 +114,9 @@ describe ('#AlexaHandler', () => {
                             intent: {
                                 name: 'some intent',
                                 slots: {
-                                    some: 'slot',
+                                    some: {
+                                        value: 'slot',
+                                    },
                                 },
                             },
                             type: 'IntentRequest',
@@ -125,15 +127,15 @@ describe ('#AlexaHandler', () => {
                 ee4 = AlexaHandler.listen(mockRED, '/some/url');
                 ee4.emit = sinon.stub();
 
-                calllback = postStub.getCall(0).args[postStub.getCall(0).args.length - 2];
+                callback = postStub.getCall(0).args[postStub.getCall(0).args.length - 2];
             });
 
             it ('should call emit on the event listeners until message is actioned', () => {
-                calllback(req, res);
+                callback(req, res);
 
                 const expectedMessage: any = {
                     actioned: true,
-                    payload: req.body,
+                    payload: JSON.parse(JSON.stringify(req.body)),
                     req,
                     res,
                 };
@@ -151,7 +153,7 @@ describe ('#AlexaHandler', () => {
             it ('should not call emit when not an intent request', () => {
                 req.body.request.type = 'not IntentRequest';
 
-                calllback(req, res);
+                callback(req, res);
 
                 // tslint:disable-next-line: no-unused-expression
                 expect(ee.emit).to.have.not.been.called;
