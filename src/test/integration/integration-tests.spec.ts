@@ -1,10 +1,12 @@
 import * as chai from 'chai';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as request from 'request';
 
 // tslint:disable: max-line-length
 
+chai.use(chaiAsPromised);
 const expect = chai.expect;
 
 const requestAsync = (options) => {
@@ -23,8 +25,13 @@ const alexaRequest = async (intent: any) => {
     return requestAsync({
         json: intent,
         method: 'POST',
+        timeout: 5000,
         url: 'http://localhost:1880',
     });
+};
+
+const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 const testJSONFolder = path.join(__dirname, '../../../testing/integration');
@@ -158,4 +165,47 @@ describe('#IntegrationTests', () => {
 
         expect(thirdBody).to.deep.equal(expectedOutput);
     });
+
+    it ('should clear sessions after timeout', async () => {
+        const firstBody = await alexaRequest(intentTwo);
+
+        expectedOutput.response.outputSpeech.text = 'something to respond to';
+        expectedOutput.response.shouldEndSession = false;
+
+        expect(firstBody).to.deep.equal(expectedOutput);
+
+        await sleep(31000);
+
+        // tslint:disable-next-line: no-unused-expression
+        await expect(alexaRequest(intentThreeExit2)).to.eventually.be.rejected;
+    }).timeout(0);
+
+    it ('should refresh session timeout after bad response', async () => {
+        const firstBody = await alexaRequest(intentTwo);
+
+        expectedOutput.response.outputSpeech.text = 'something to respond to';
+        expectedOutput.response.shouldEndSession = false;
+
+        expect(firstBody).to.deep.equal(expectedOutput);
+
+        intentOne.session.new = false;
+        intentOne.session.sessionId = intentTwo.session.sessionId;
+
+        await sleep(20000);
+        const secondBody = await alexaRequest(intentOne);
+
+        expectedOutput.response.outputSpeech.text = 'Sorry I don\'t understand your response in this context. Please try again.';
+        expectedOutput.response.shouldEndSession = false;
+
+        expect(secondBody).to.deep.equal(expectedOutput);
+
+        await sleep(20000);
+
+        const thirdBody = await alexaRequest(intentThreeExit1);
+
+        expectedOutput.response.outputSpeech.text = 'some other message';
+        expectedOutput.response.shouldEndSession = true;
+
+        expect(thirdBody).to.deep.equal(expectedOutput);
+    }).timeout(0);
 });

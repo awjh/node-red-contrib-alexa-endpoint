@@ -11,6 +11,8 @@ import { AlexaSpeakerListenerNode, IAlexaSpeakerListenerConfig } from './alexa-s
 const expect = chai.expect;
 chai.use(sinonChai);
 
+const clock = sinon.useFakeTimers();
+
 // tslint:disable: no-unused-expression
 describe ('#AlexaSpeakerListenerNode', () => {
     let sandbox: sinon.SinonSandbox;
@@ -102,7 +104,10 @@ describe ('#AlexaSpeakerListenerNode', () => {
             speakStub = sandbox.stub(AlexaHandler, 'speak');
 
             alexaSpeakerListenerNode = new AlexaSpeakerListenerNode(mockRED as any, mockConfig);
-            (alexaSpeakerListenerNode as any).currentSessions = ['some id', 'another id'];
+            (alexaSpeakerListenerNode as any).currentSessions = new Map([
+                ['some id', 'some timeout'],
+                ['another id', 'another timeout'],
+            ]);
 
             fakeMessage = {
                 payload: {
@@ -140,6 +145,10 @@ describe ('#AlexaSpeakerListenerNode', () => {
         it ('should speak and not send if all outputs null', () => {
             selectOutputStub.returns([null, null]);
 
+            const clearTimeoutStub = sandbox.stub(clock, 'clearTimeout');
+            const generateStub = sandbox.stub(alexaSpeakerListenerNode, 'generateTimeout')
+                .returns('some other timeout');
+
             (alexaSpeakerListenerNode as any).intentHandler(fakeMessage);
 
             expect(selectOutputStub).to.have.been.calledOnceWithExactly(
@@ -151,6 +160,9 @@ describe ('#AlexaSpeakerListenerNode', () => {
                 false,
             );
             expect(sendStub).to.have.not.been.called;
+            expect(clearTimeoutStub).to.have.been.calledOnceWithExactly('some timeout');
+            expect(generateStub).to.have.been.calledOnceWithExactly('some id');
+            expect(alexaSpeakerListenerNode.currentSessions.get('some id')).to.deep.equal('some other timeout');
         });
 
         it ('should not speak but send when an output found and remove id from current sessions', () => {
@@ -164,7 +176,9 @@ describe ('#AlexaSpeakerListenerNode', () => {
             );
             expect(speakStub).to.not.have.been.called;
             expect(sendStub).to.have.been.calledOnceWithExactly(fakeOutputs);
-            expect(alexaSpeakerListenerNode.currentSessions).to.deep.equal(['another id']);
+            expect(alexaSpeakerListenerNode.currentSessions).to.deep.equal(
+                new Map([['another id', 'another timeout']]),
+            );
         });
     });
 
@@ -183,12 +197,32 @@ describe ('#AlexaSpeakerListenerNode', () => {
             };
 
             const alexaSpeakerListenerNode = new AlexaSpeakerListenerNode(mockRED as any, mockConfig);
-            (alexaSpeakerListenerNode as any).currentSessions = ['some id'];
+            (alexaSpeakerListenerNode as any).currentSessions = new Map([['some id', 'some timeout']]);
+
+            const generateStub = sandbox.stub(alexaSpeakerListenerNode, 'generateTimeout')
+                .returns('another timeout' as any);
 
             (alexaSpeakerListenerNode as any).inputHandler(fakeMessage);
 
             expect(speakStub).to.have.been.calledOnceWithExactly(mockConfig.message, fakeMessage, false);
-            expect(alexaSpeakerListenerNode.currentSessions).to.deep.equal(['some id', 'another id']);
+            expect(alexaSpeakerListenerNode.currentSessions).to.deep.equal(
+                new Map([['some id', 'some timeout'], ['another id', 'another timeout']]),
+            );
+            expect(generateStub).to.have.been.calledOnceWithExactly('another id');
+        });
+    });
+
+    describe ('generateTimeout', () => {
+        it ('should return a timeout that deletes from current sessions', () => {
+            const alexaSpeakerListenerNode = new AlexaSpeakerListenerNode(mockRED as any, mockConfig);
+
+            const timeout = (alexaSpeakerListenerNode as any).generateTimeout('some id');
+
+            alexaSpeakerListenerNode.currentSessions.set('some id', timeout);
+
+            clock.tick(30001);
+
+            expect(alexaSpeakerListenerNode.currentSessions.has('some id')).to.be.false;
         });
     });
 });
