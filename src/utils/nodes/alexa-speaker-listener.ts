@@ -11,7 +11,7 @@ export interface IAlexaSpeakerListener extends IAlexaListener, IAlexaSpeaker {}
 interface IAlexaSpeakerListenerNode extends IAlexaListenerNode, IAlexaSpeakerNode {}
 
 export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerListenerNode {
-    public readonly currentSessions: string[];
+    public readonly currentSessions: Map<string, NodeJS.Timeout>;
 
     // LISTENER PROPERTIES
     public readonly url: string;
@@ -48,7 +48,7 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
 
         this.closeHandler = (this.alexaListener as any).closeHandler;
 
-        this.currentSessions = [];
+        this.currentSessions = new Map();
     }
 
     public setupNode () {
@@ -57,7 +57,9 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
     }
 
     protected intentHandler (msg) {
-        if (!msg.payload.session.new && this.currentSessions.includes(msg.payload.session.sessionId)) {
+        const sessionId = msg.payload.session.sessionId;
+
+        if (!msg.payload.session.new && this.currentSessions.has(sessionId)) {
             msg.actioned = true;
 
             const outputs = OutputHandler.selectOutputFromArray(this.intents, msg.payload.intent, msg);
@@ -68,9 +70,11 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
                     msg,
                     false,
                 );
+
+                clearTimeout(this.currentSessions.get(sessionId));
+                this.currentSessions.set(sessionId, this.generateTimeout(sessionId));
             } else {
-                const sessionIndex = this.currentSessions.indexOf(msg.payload.session.sessionId);
-                this.currentSessions.splice(sessionIndex, 1);
+                this.currentSessions.delete(sessionId);
                 this.send(outputs);
             }
         }
@@ -79,10 +83,18 @@ export class AlexaSpeakerListenerNode extends BaseNode implements IAlexaSpeakerL
     protected inputHandler (inputMsg: {[s: string]: any, message: string | boolean | number}) {
         AlexaHandler.speak(this.message, inputMsg, false);
 
-        this.currentSessions.push(inputMsg.payload.session.sessionId);
+        const sessionId = inputMsg.payload.session.sessionId;
+
+        this.currentSessions.set(sessionId, this.generateTimeout(sessionId));
     }
 
     // istanbul ignore next
     // tslint:disable-next-line:no-empty
     protected closeHandler () {} // gets overwritten
+
+    private generateTimeout (sessionId: string): any {
+        return setTimeout(() => {
+            this.currentSessions.delete(sessionId);
+        }, 30000);
+    }
 }
