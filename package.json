@@ -27,7 +27,7 @@
     "url": "github.com/awjh/node-red-contrib-alexa-app-server"
   },
   "keywords": [
-    "alexa"
+    "alexa", "node red", "home automation", "speach recognition"
   ],
   "nyc": {
     "require": [
