@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github.com/awjh/node-red-contrib-alexa-app-server"
+    "url": "git+https://github.com/awjh/node-red-contrib-alexa-app-server"
   },
   "keywords": [
     "alexa", "node red", "home automation", "speach recognition"
