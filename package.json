@@ -81,7 +81,7 @@
     "@types/uuid": "^3.4.4",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "mocha": "^6.1.4",
+    "mocha": "^10.2.0",
     "mockery": "^2.1.0",
     "node-red-node-test-helper": "^0.2.2",
     "nodemon": "^1.18.11",
